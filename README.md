@@ -127,6 +127,31 @@ python -c "from ledger import Ledger; print(Ledger('receipts.jsonl').verify())"
 
 Delete a row and it breaks too. Every row carries the hash of the one before it.
 
+## Six ways to drain an agent wallet
+
+We tried all six against our own wallet. Four are stopped by our policy gate. Two can only be
+stopped by the chain.
+
+| # | Attack | Result |
+|---|---|---|
+| 1 | Pay the wrong address | `RECIPIENT_NOT_ALLOWED` — our gate |
+| 2 | Pay ten times over | `OVER_BUDGET` — our gate |
+| 3 | Pay with no receipt | `NO_EVIDENCE` — our gate |
+| 4 | Pay for something unnamed | `PURPOSE_TOO_VAGUE` — our gate |
+| 5 | A bug in our own code sends anyway | refused by NEAR — the key cannot authorise it |
+| 6 | Someone steals the key | loss capped by NEAR — allowance and one receiver |
+
+```bash
+python attacks.py            # all six
+python attacks.py --attack 5 # one
+```
+
+Attacks 1 to 4 are our code doing its job. **Attacks 5 and 6 are the interesting ones**, because
+they assume our code is broken or compromised. Those are the two where only the chain stands between
+the agent and the money.
+
+Tested 14 Nov 2026.
+
 ## How it works
 
 ```
